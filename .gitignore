@@ -1,0 +1,16 @@
+# Ignore virtual environment
+.venv/
+
+# Ignore lock files
+*.lock
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore build artifacts
+build/
+dist/
+
+# Ignore IDE configuration files
+.vscode/
