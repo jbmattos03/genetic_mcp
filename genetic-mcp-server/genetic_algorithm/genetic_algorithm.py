@@ -20,7 +20,7 @@ class GeneticAlgorithm:
         :param fitness_function: An optional fitness function to guide the evolution process.
         """
         # Initialize the population with the specified size and chromosome size
-        self.population = Population(population_size, chromosome_size, fitness_function)
+        self.population = fitness_function.generate_population(population_size, chromosome_size)
 
         # Set the fitness function, mutation rate, and crossover rate
         if fitness_function is None:
@@ -37,18 +37,54 @@ class GeneticAlgorithm:
         # Initialize generation count and best chromosome
         self.generation = 0
         self.best_chromosome = None
-        self.best_fitness = float('-inf')
+        self.best_fitness = float("-inf") # Initialize best fitness to negative infinity
 
     def evaluate_fitness(self):
         """
         Evaluate the fitness of each chromosome in the population.
         """
         pass
+    
+    def select_best_chromosome(self) -> Chromosome:
+        """
+        Select the best chromosome from the population based on fitness.
+        
+        :return: The chromosome with the highest fitness.
+        """
+        self.best_chromosome = max(self.population.chromosomes, key=lambda c: c.fitness)
+        
+        if self.best_chromosome.fitness > self.best_fitness:
+            self.best_fitness = self.best_chromosome.fitness
 
-    def select_parents(self) -> List[Chromosome]:
+        return self.best_chromosome
+
+    def select_parents(self, method: str = "roulette") -> List[Chromosome]:
         """
         Select parents for crossover based on their fitness.
         
+        :param method: The selection method to use ('roulette', 'tournament', etc.).
+        :return: A list of selected parent chromosomes.
+        """
+        if method == "roulette":
+            return self.roulette_selection()
+        elif method == "tournament":
+            return self.tournament_selection()
+        else:
+            raise ValueError(f"Unknown selection method: {method}")
+        
+    def roulette_selection(self) -> List[Chromosome]:
+        """
+        Select parents using roulette wheel selection.
+        
+        :return: A list of selected parent chromosomes.
+        """
+        pass
+
+    def tournament_selection(self, tournament_size: int = 3) -> List[Chromosome]:
+        """
+        Select parents using tournament selection.
+        
+        :param tournament_size: The number of chromosomes to include in each tournament.
         :return: A list of selected parent chromosomes.
         """
         pass
@@ -63,13 +99,16 @@ class GeneticAlgorithm:
         """
         pass
 
-    def mutate(self, chromosome: Chromosome):
+    def mutate(self, chromosome: Chromosome, attempts: int = 5):
         """
         Mutate a chromosome by randomly changing one of its genes.
         
         :param chromosome: The chromosome to mutate.
         """
-        pass
+        for index, gene in enumerate(chromosome.genes):
+            if random.random() < self.mutation_rate:
+                # Replace the gene with a new random gene
+                chromosome.genes[index] = Gene(fitness_function=self.fitness_function)
 
     def run(self, generations: int):
         """

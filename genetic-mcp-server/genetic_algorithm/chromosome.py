@@ -8,7 +8,7 @@ class Chromosome:
     A class to represent a chromosome in a genetic algorithm.
     """
 
-    def __init__(self, size: int, genes: Optional[List[Gene]] = None, fitness_function: Optional[FitnessFunction] = None):
+    def __init__(self, size: int, genes: List[Gene]):
         """
         Initialize a chromosome with a given size and optional genes.
         
@@ -19,7 +19,7 @@ class Chromosome:
             raise ValueError("Chromosome size must be greater than 0.")
         
         self.size = size
-        self.genes = genes if genes is not None else [Gene(fitness_function) for _ in range(size)]
+        self.genes = genes
         self.fitness = 0
 
     def __getitem__(self, index: int) -> Gene:

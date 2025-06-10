@@ -8,7 +8,7 @@ class Population:
     A class to represent a population in a genetic algorithm.
     """
 
-    def __init__(self, size: int, chromosome_size: int, fitness_function: Optional[FitnessFunction] = None):
+    def __init__(self, size: int, chromosomes: List[Chromosome]):
         """
         Initialize a population with a given size and chromosome size.
         
@@ -18,10 +18,10 @@ class Population:
         """
         if size <= 0:
             raise ValueError("Population size must be greater than 0.")
-
-        self.chromosomes = [Chromosome(chromosome_size, fitness_function=fitness_function) for _ in range(size)]
-        self.fitness_function = fitness_function
         self.size = size
+        self.chromosomes = chromosomes
+        if not self.chromosomes or len(self.chromosomes) < 1:
+            raise ValueError("Population must have at least one chromosome.")
 
     def __getitem__(self, index: int) -> Chromosome:
         """
