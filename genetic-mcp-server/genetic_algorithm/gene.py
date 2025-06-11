@@ -1,8 +1,6 @@
 from typing import List, Optional
 import random
 
-from fitness_function import FitnessFunction
-
 class Gene:
     """
     A class to represent a gene in a genetic algorithm.
