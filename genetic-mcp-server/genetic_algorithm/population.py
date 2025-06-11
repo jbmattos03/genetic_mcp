@@ -1,7 +1,5 @@
 from typing import List, Optional
-
 from chromosome import Chromosome
-from fitness_function import FitnessFunction
 
 class Population:
     """
@@ -22,21 +20,3 @@ class Population:
         self.chromosomes = chromosomes
         if not self.chromosomes or len(self.chromosomes) < 1:
             raise ValueError("Population must have at least one chromosome.")
-
-    def __getitem__(self, index: int) -> Chromosome:
-        """
-        Get a chromosome at a specific index.
-        :param index: The index of the chromosome to retrieve.
-        :return: The chromosome at the specified index.
-        """
-        return self.chromosomes[index]
-    
-    def __setitem__(self, index: int, value: Chromosome):
-        """
-        Set a chromosome at a specific index.
-        :param index: The index of the chromosome to set.
-        :param value: The chromosome to set at the specified index.
-        """
-        if not isinstance(value, Chromosome):
-            raise TypeError("Value must be an instance of Chromosome.")
-        self.chromosomes[index] = value

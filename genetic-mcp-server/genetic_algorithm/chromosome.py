@@ -1,7 +1,5 @@
 from typing import List, Optional
-
 from gene import Gene
-from fitness_function import FitnessFunction
 
 class Chromosome:
     """
@@ -21,24 +19,4 @@ class Chromosome:
         self.size = size
         self.genes = genes
         self.fitness = 0
-
-    def __getitem__(self, index: int) -> Gene:
-        """
-        Get a gene at a specific index.
-        
-        :param index: The index of the gene to retrieve.
-        :return: The gene at the specified index.
-        """
-        return self.genes[index]
-    
-    def __setitem__(self, index: int, value: Gene):
-        """
-        Set a gene at a specific index.
-        
-        :param index: The index of the gene to set.
-        :param value: The gene to set at the specified index.
-        """
-        if not isinstance(value, Gene):
-            raise TypeError("Value must be an instance of Gene.")
-        self.genes[index] = value
     
