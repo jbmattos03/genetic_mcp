@@ -7,7 +7,11 @@ from fitness_function import KnapsackFitnessFunction, VehicleRoutingFitnessFunct
 
 logger = logger_config(process_name="genetic_algorithm_main", pretty=True)
 
-def main(options: Optional[Dict[str, Any]] = None, problem: Optional[str] = "knapsack") -> None:
+def main(
+        options: Optional[Dict[str, Any]] = None, 
+        problem: Optional[str] = "knapsack", 
+        generations: Optional[int] = 100
+) -> Dict[str, Any]:
     """
     Main function to run the genetic algorithm for a specified problem.
 
@@ -16,8 +20,8 @@ def main(options: Optional[Dict[str, Any]] = None, problem: Optional[str] = "kna
     """
     logger.info("Starting the genetic algorithm with options: %s", options)
 
-    population_size = options.get("population_size", 1000)
-    chromosome_size = options.get("chromosome_size", 10)
+    population_size = int(options.get("population_size", 1000))
+    chromosome_size = int(options.get("chromosome_size", 10))
     ff_arg = options.get("fitness_function")  # Mandatory field for fitness function parameters
     if ff_arg is None:
         logger.error("Fitness function parameters must be provided.")
@@ -41,8 +45,12 @@ def main(options: Optional[Dict[str, Any]] = None, problem: Optional[str] = "kna
         chromosome_size=chromosome_size,
         fitness_function=fitness_function,
     )
-    result = ga.run(generations=100)
+
+    generations = int(generations)
+    result = ga.run(generations=generations)
     logger.info("Genetic algorithm completed. Best solution: %s", result)
+
+    return result
         
 if __name__ == "__main__":
     main(
