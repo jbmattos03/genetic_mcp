@@ -1,13 +1,9 @@
-from typing import List, Any, Dict, Optional
+from typing import Any, Dict, Optional
 from abc import ABC, abstractmethod
-import random
 
 from chromosome import Chromosome
 from gene import Gene
 from population import Population
-from logger import logger_config
-
-logger = logger_config(process_name="fitness_function", pretty=True)
 
 # Implement an interface for fitness functions
 class FitnessFunction(ABC):
