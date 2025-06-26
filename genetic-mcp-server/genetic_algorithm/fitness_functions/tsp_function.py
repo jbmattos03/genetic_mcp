@@ -1,4 +1,5 @@
 from typing import Dict, Optional, Any
+import random
 
 from fitness_function import FitnessFunction
 from chromosome import Chromosome
@@ -6,7 +7,7 @@ from gene import Gene
 from population import Population
 
 from logger import logger_config
-logger = logger_config(process_name="genetic_algorithm", pretty=True)
+logger = logger_config(process_name="fitness_function", pretty=True)
 
 class TravelingSalesmanFitnessFunction(FitnessFunction):
     """
