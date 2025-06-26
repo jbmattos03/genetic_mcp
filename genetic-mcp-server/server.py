@@ -10,37 +10,30 @@ mcp = FastMCP("genetic-mcp-server")
 
 # ------- Adding tools -------
 # Tool: vehicle routing problem
-'''
 @mcp.tool("solve_vehicle_routing_problem")
 def vehicle_routing_problem():
     """
     A tool to solve the vehicle routing problem using a genetic algorithm.
     """
     return
-'''
 
 # Tool: knapsack problem
 @mcp.tool(description="Solve a knapsack problem using a genetic algorithm.")
 async def knapsack_problem(
     population_size: int = 1000,
     chromosome_size: int = 10,
+    generations: int = 100,
     fitness_function: Dict[str, Any] = None,
 ) -> Dict[str, Any]:
     """
     A tool to solve the knapsack problem using a genetic algorithm.
     """
-    #print(type(population_size))
-    #print(type(chromosome_size))
-    #print(type(fitness_function))
-    
     if not isinstance(population_size, int) or population_size <= 0:
         raise ValueError("Population size must be a positive integer.")
     if not isinstance(chromosome_size, int) or chromosome_size <= 0:
         raise ValueError("Chromosome size must be a positive integer.")
-    if fitness_function is None or not fitness_function:
+    if not fitness_function or not isinstance(fitness_function, dict):
         raise ValueError("Fitness function parameters must be provided.")
-    if not isinstance(fitness_function, dict):
-        raise ValueError("Fitness function parameters must be a dictionary.")
     
     options = {
         "population_size": population_size,
@@ -49,7 +42,7 @@ async def knapsack_problem(
     }
     
     # Run the genetic algorithm for the knapsack problem
-    result = genetic_algorithm_main(options=options, problem="knapsack")
+    result = genetic_algorithm_main(options=options, problem="knapsack", generations=generations)
     return result
 
 # Add a dynamic greeting resource

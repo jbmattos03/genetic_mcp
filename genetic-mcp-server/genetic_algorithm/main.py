@@ -50,6 +50,8 @@ def main(
         chromosome_size=chromosome_size,
         fitness_function=fitness_function,
     )
+
+    generations = int(generations)
     result = ga.run(generations=generations)
     logger.info("Genetic algorithm completed. Best solution: %s", result)
 
