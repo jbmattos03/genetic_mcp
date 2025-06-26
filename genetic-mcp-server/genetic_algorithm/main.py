@@ -3,11 +3,17 @@ from typing import Dict, Any, Optional
 from gen_alg import GeneticAlgorithm
 from logger import logger_config
 
-from fitness_function import KnapsackFitnessFunction, VehicleRoutingFitnessFunction
+from fitness_functions.knapsack_function import KnapsackFitnessFunction
+from fitness_functions.tsp_function import TravelingSalesmanFitnessFunction
+from fitness_functions.vrp_function import VehicleRoutingFitnessFunction
 
 logger = logger_config(process_name="genetic_algorithm_main", pretty=True)
 
-def main(options: Optional[Dict[str, Any]] = None, problem: Optional[str] = "knapsack") -> None:
+def main(
+        options: Optional[Dict[str, Any]] = None, 
+        problem: Optional[str] = "knapsack",
+        generations: Optional[int] = 100
+) -> Dict[str, Any]:
     """
     Main function to run the genetic algorithm for a specified problem.
 
@@ -16,8 +22,9 @@ def main(options: Optional[Dict[str, Any]] = None, problem: Optional[str] = "kna
     """
     logger.info("Starting the genetic algorithm with options: %s", options)
 
-    population_size = options.get("population_size", 1000)
-    chromosome_size = options.get("chromosome_size", 10)
+    population_size = int(options.get("population_size", 1000))
+    chromosome_size = int(options.get("chromosome_size", 10))
+    generations = generations
     ff_arg = options.get("fitness_function")  # Mandatory field for fitness function parameters
     if ff_arg is None:
         logger.error("Fitness function parameters must be provided.")
@@ -28,9 +35,11 @@ def main(options: Optional[Dict[str, Any]] = None, problem: Optional[str] = "kna
         fitness_function = KnapsackFitnessFunction(ff_arg)
         logger.info("Using KnapsackFitnessFunction with parameters: %s", ff_arg)
     elif problem == "vehicle_routing":
-        from fitness_function import VehicleRoutingFitnessFunction
         fitness_function = VehicleRoutingFitnessFunction(ff_arg)
         logger.info("Using VehicleRoutingFitnessFunction with parameters: %s", ff_arg)
+    elif problem == "traveling_salesman":
+        fitness_function = TravelingSalesmanFitnessFunction(ff_arg)
+        logger.info("Using TravelingSalesmanFitnessFunction with parameters: %s", ff_arg)
     else:
         logger.error(f"Unknown problem type: {problem}")
         raise ValueError(f"Unknown problem type: {problem}")
@@ -41,13 +50,15 @@ def main(options: Optional[Dict[str, Any]] = None, problem: Optional[str] = "kna
         chromosome_size=chromosome_size,
         fitness_function=fitness_function,
     )
-    result = ga.run(generations=100)
+    result = ga.run(generations=generations)
     logger.info("Genetic algorithm completed. Best solution: %s", result)
+
+    return result
         
 if __name__ == "__main__":
     main(
-        {
-            "population_size": 1000,
+        options={
+            "population_size": 500,
             "chromosome_size": 10,
             "fitness_function": {
                     "capacity": [5, 4, 3, 2, 1, 6, 2, 3, 4, 5],
@@ -55,5 +66,7 @@ if __name__ == "__main__":
                     "value": [40, 50, 65, 80, 110, 15, 90, 70, 60, 55],
                     "max_weight": 50
             }
-        }
+        },
+        generations=50,
+        problem="knapsack"
     )

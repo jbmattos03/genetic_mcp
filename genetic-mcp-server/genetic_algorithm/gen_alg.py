@@ -1,7 +1,7 @@
 from typing import List, Optional
 import random
 
-from fitness_function import FitnessFunction
+from fitness_functions.fitness_function import FitnessFunction
 from chromosome import Chromosome
 from logger import logger_config
 
