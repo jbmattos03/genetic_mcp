@@ -9,6 +9,7 @@ An MCP server to solve maximization problems using Genetic Algorithm.
 3. [How to add the MCP server to Cursor](#how-to-add-the-mcp-server-to-cursor)
 
 # How it works
+...
 
 # How to run
 ## Genetic Algorithm
@@ -18,24 +19,38 @@ cd genetic-mcp-server/genetic_algorithm
 python3 main.py
 ```
 
-If you want to run your own problems, simply modify the following section of `genetic-mcp-server/genetic_algorithm/main.py`:
+There are also sample problems in `genetic-mcp-server/genetic_algorithm/samples`. To run them, simply replace `<problem>` below with the name of the actual problem you want to run:
 ```python
-if __name__ == "__main__":
-    main(
-        {
-            "population_size": 1000,
-            "chromosome_size": 10,
-            "fitness_function": {
-                    "capacity": [5, 4, 3, 2, 1, 6, 2, 3, 4, 5],
-                    "weight": [2, 3, 4, 5, 7, 1, 6, 4.5, 3.5, 2.5],
-                    "value": [40, 50, 65, 80, 110, 15, 90, 70, 60, 55],
-                    "max_weight": 50
-            }
-        }
-    )
+cd genetic-mcp-server/genetic_algorithm
+python3 main.py samples/<problem>.json
 ```
 
-**Support for arguments coming soon!**
+If you want to run your own problems, you have 2 options:
+1. Simply modify the following section of `genetic-mcp-server/genetic_algorithm/main.py`:
+```python
+tsp_data = {
+            "options": {
+                "population_size": 100,
+                "chromosome_size": 4,
+                "fitness_function": {
+                    "cities": ["A", "B", "C", "D"],
+                    "distance_matrix": [
+                        [0, 10, 15, 20],
+                        [10, 0, 35, 25],
+                        [15, 35, 0, 30],
+                        [20, 25, 30, 0]
+                    ]
+                }
+            },
+            "problem": "traveling_salesman",
+            "generations": 50
+}
+```
+2. Create a .json file in the same style of the ones in `genetic-mcp-server/genetic_algorithm/samples` and replace `<path_to_your_file>` with the path to your file:
+```python
+cd genetic-mcp-server/genetic_algorithm
+python3 <path_to_your_file>
+```
 
 ## MCP Server
 If you want to run the MCP server, run:
