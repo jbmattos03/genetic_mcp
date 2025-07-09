@@ -1,5 +1,6 @@
 from typing import Dict, Any, Optional
 import json
+import sys
 
 from gen_alg import GeneticAlgorithm
 from logger import logger_config
@@ -55,7 +56,7 @@ def main(
     )
 
     result = ga.run(generations=generations)
-    logger.info("Genetic algorithm completed. Best solution: %s", result)
+    logger.info(f"Genetic algorithm completed. Best solution: {result['best_chromosome']}, Fitness: {result['best_fitness']}, Generation: {result['generation']}")
 
     if problem == "knapsack":
         result.append({
@@ -66,12 +67,33 @@ def main(
     return result
         
 if __name__ == "__main__":
-    with open("tsp.json", "r") as file:
-        tsp_data = json.load(file)
+    if len(sys.argv) > 1:
+        file_name = sys.argv[1]
+        logger.info(f"Loading problem data from file: {file_name}")
+        with open(file_name, "r") as file:
+            tsp_data = json.load(file)
+    else:
+        logger.info("No file provided. Using default problem data.")
+        tsp_data = {
+            "options": {
+                "population_size": 100,
+                "chromosome_size": 4,
+                "fitness_function": {
+                    "cities": ["A", "B", "C", "D"],
+                    "distance_matrix": [
+                        [0, 10, 15, 20],
+                        [10, 0, 35, 25],
+                        [15, 35, 0, 30],
+                        [20, 25, 30, 0]
+                    ]
+                }
+            },
+            "problem": "traveling_salesman",
+            "generations": 50
+        }
     
     options = tsp_data.get("options", {})
     problem = tsp_data.get("problem", "traveling_salesman")
     generations = tsp_data.get("generations", 100)
-    #print(options, problem, generations)
     
     main(options=options, problem=problem, generations=generations)
