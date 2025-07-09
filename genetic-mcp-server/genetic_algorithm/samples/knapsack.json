@@ -1,0 +1,14 @@
+{
+    "problem": "knapsack",
+    "generations": 50,
+    "options": {
+            "population_size": 1000,
+            "chromosome_size": 10,
+            "fitness_function": {
+                    "capacity": [5, 4, 3, 2, 1, 6, 2, 3, 4, 5],
+                    "weight": [2, 3, 4, 5, 7, 1, 6, 4.5, 3.5, 2.5],
+                    "value": [40, 50, 65, 80, 110, 15, 90, 70, 60, 55],
+                    "max_weight": 50
+            }
+    }
+}
