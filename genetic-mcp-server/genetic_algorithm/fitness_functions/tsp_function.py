@@ -43,8 +43,8 @@ class TravelingSalesmanFitnessFunction(FitnessFunction):
         """
         Generate a gene.
 
-        :param index: An optional index for the gene.
-        :param value: An optional value for the gene.
+        :param index (optional): An optional index for the gene.
+        :param value (optional): An optional value for the gene.
         :return: A generated Gene object.
         """
         logger.debug("Generating gene")
