@@ -20,6 +20,7 @@ class GeneticAlgorithm:
             fitness_function: FitnessFunction = None, 
             mutation_rate: Optional[float] = 0.05, 
             crossover_rate: Optional[float] = 0.8,
+            method: Optional[str] = "roulette",
             problem: Optional[str] = "knapsack"
     ):
         """
@@ -28,6 +29,10 @@ class GeneticAlgorithm:
         :param population_size: The number of chromosomes in the population.
         :param chromosome_size: The size of each chromosome.
         :param fitness_function: An optional fitness function to guide the evolution process.
+        :param mutation_rate (optional): The mutation rate for the algorithm.
+        :param crossover_rate (optional): The crossover rate for the algorithm.
+        :param method (optional): Parent selection method. Can be either "roulette" or "tournament". Default is "roulette".
+        :param problem (optional): Type of problem to be solved. Can be either "traveling_salesman", "knapsack" or "vehicle_routing".
         """
         # Initialize the population with the specified size and chromosome size
         self.population = fitness_function.generate_population(population_size, chromosome_size)
@@ -40,12 +45,14 @@ class GeneticAlgorithm:
         if not (0 <= crossover_rate <= 1):
             raise ValueError("Crossover rate must be between 0 and 1.")
         
+        # Initialize the genetic algorithm parameters
+        self.problem = problem
+        self.method = method.lower() if method else "roulette"
         self.fitness_function = fitness_function
         self.mutation_rate = mutation_rate
         self.crossover_rate = crossover_rate
 
         # Initialize generation count and best chromosome
-        self.problem = problem
         self.generation = 0
         self.best_chromosome = None
         self.best_fitness = float("-inf") # Initialize best fitness to negative infinity
@@ -59,9 +66,11 @@ class GeneticAlgorithm:
             gene_genes = [gene.value for gene in chromosome.genes]  # Extract gene genes
             logger.debug(f"Chromosome {gene_genes} fitness: {chromosome.fitness}")
     
-    def select_best_chromosome(self) -> Optional[Chromosome]:
+    def select_best_chromosome(self) -> Chromosome:
         """
         Select the best chromosome from the population based on fitness.
+
+        :return: The best chromosome in the population.
         """
         if not self.population.chromosomes:
             logger.error("Population is empty. Cannot select the best chromosome.")
@@ -77,25 +86,16 @@ class GeneticAlgorithm:
                 logger.info(f"New best fitness found: {self.best_fitness} in generation {self.generation}")
         else:
             logger.warning("No valid chromosome found in the population.")
+            return
 
         return self.best_chromosome
 
-    def get_best_solution(self) -> Chromosome:
-        """
-        Get the best solution found so far.
-        
-        :return: The best chromosome in the population.
-        """
-        if self.best_chromosome is None:
-            self.select_best_chromosome()
-
-        return self.best_chromosome
-
-    def select_parents(self, method: str = "roulette", parent_proportion: float = 0.8) -> List[Chromosome]:
+    def select_parents(self, method: Optional[str] = "roulette", parent_proportion: Optional[float] = 0.8) -> List[Chromosome]:
         """
         Select parents for crossover based on their fitness.
         
-        :param method: The selection method to use ('roulette', 'tournament', etc.).
+        :param method (optional): The selection method to use ('roulette', 'tournament', etc.). Default is 'roulette'.
+        :param parent_proportion (optional): The ratio between parents and population. Default is 0.8.
         :return: A list of selected parent chromosomes.
         """
         if method == "roulette":
@@ -120,6 +120,7 @@ class GeneticAlgorithm:
         """
         Select parents using roulette wheel selection.
         
+        :param parents: The number of parents to select.
         :return: A list of selected parent chromosomes.
         """
         logger.info("Starting roulette wheel selection for parent selection.")
@@ -152,11 +153,12 @@ class GeneticAlgorithm:
     
         return selected
 
-    def tournament_selection(self, parents: int, tournament_size: int = 3) -> List[Chromosome]:
+    def tournament_selection(self, parents: int, tournament_size: Optional[int] = 3) -> List[Chromosome]:
         """
         Select parents using tournament selection.
         
-        :param tournament_size: The number of chromosomes to include in each tournament.
+        :param parents: The number of parents to select.
+        :param tournament_size (optional): The number of chromosomes to include in each tournament.
         :return: A list of selected parent chromosomes.
         """
         logger.info("Starting tournament selection for parent selection.")
@@ -178,13 +180,14 @@ class GeneticAlgorithm:
 
         return selected
 
-    def crossover(self, parent1: Chromosome, parent2: Chromosome, chromosome_length: int, attempts: int = 5) -> Chromosome:
+    def crossover(self, parent1: Chromosome, parent2: Chromosome, chromosome_length: int, attempts: Optional[int] = 5) -> Chromosome:
         """
         Perform crossover between two parent chromosomes to create a new child chromosome.
         
         :param parent1: The first parent chromosome.
         :param parent2: The second parent chromosome.
-        :return: A new child chromosome resulting from the crossover.
+        :param chromosome_length: The length of the chromosome.
+        :param attempts (optional): The number of attempts to create valid offspring.
         """
         logger.info(f"Performing crossover between parents: {[g.value for g in parent1.genes]} and {[g.value for g in parent2.genes]}")
         valid_flag = False
@@ -226,7 +229,7 @@ class GeneticAlgorithm:
                 sum([offspring2.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight:
                     valid_flag = True
             # For TSP, check if the offspring are valid (i.e., they do not contain duplicate genes)
-            elif self.problem == "tsp":
+            elif self.problem == "traveling_salesman":
                 if (
                     offspring1 not in self.population.chromosomes and
                     offspring2 not in self.population.chromosomes and
@@ -266,19 +269,21 @@ class GeneticAlgorithm:
                         sum([chromosome.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome.length)]) > self.fitness_function.max_weight:
                             logger.warning(f"Mutation resulted in an invalid chromosome: {[g.value for g in chromosome.genes]}. Reverting to original value.")
                             gene.value = original_value
-                    elif self.problem == "tsp":
+                    elif self.problem == "traveling_salesman":
                         if any(chromosome.genes == pop_chromosome.genes for pop_chromosome in self.population.chromosomes) or \
-                            len([g.value for g in chromosome.genes]) != len(set(g.value for g in chromosome.genes)): 
-                            logger.warning(f"Mutation resulted in an invalid chromosome: {[g.value for g in chromosome.genes]}. Reverting to original value.")
-                            gene.value = original_value
+                            len([g.value for g in chromosome.genes]) != len(set([g.value for g in chromosome.genes])): 
+                                logger.warning(f"Mutation resulted in an invalid chromosome: {[g.value for g in chromosome.genes]}. Reverting to original value.")
+                                gene.value = original_value
 
-    def run(self, generations: int, method: str = "roulette"):
+    def run(self, generations: int):
         """
         Run the genetic algorithm for a specified number of generations.
         
         :param generations: The number of generations to run the algorithm.
+        :return: The best solution found after running the algorithm (dictionary with 'best_chromosome, 
+        'best_fitness' and 'generation').
         """
-        logger.info(f"Starting genetic algorithm for {generations} generations with method: {method}")
+        logger.info(f"Starting genetic algorithm for {generations} generations with method: {self.method}")
         for _ in range(generations):
             self.generation += 1
             logger.info(f"Generation {self.generation} started.")
@@ -288,7 +293,7 @@ class GeneticAlgorithm:
             logger.debug(f"Population fitness after evaluation: {[chromosome.fitness for chromosome in self.population.chromosomes]}")
 
             # Select parents for crossover
-            parents = self.select_parents(method=method)
+            parents = self.select_parents(method=self.method)
             logger.info(f"Selected parents for crossover: {[g.value for pair in parents for chromosome in pair for g in chromosome.genes]}")
 
             # Perform crossover to create new chromosomes
@@ -309,8 +314,8 @@ class GeneticAlgorithm:
                 logger.warning(f"No valid chromosome found in generation {self.generation}. Continuing to next generation.")
                 continue
 
-        best = self.get_best_solution()
-        if best is None:
+        best = self.select_best_chromosome()
+        if not best:
             logger.error("No valid solution found after running the genetic algorithm.")
             return None
         else:
