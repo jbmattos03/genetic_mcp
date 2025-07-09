@@ -3,13 +3,21 @@ import logging
 
 from typing import Optional
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 def logger_config(process_name: Optional[str], pretty: Optional[bool] = True):
     """
     Configure the logger to use structlog with optional pretty-print output.
 
     :param pretty: Whether to enable pretty-printing for logs.
     """
-    logging.basicConfig(level=logging.DEBUG)
+    level = os.getenv("LOG_LEVEL", "INFO").upper()
+    if level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+        raise ValueError(f"Invalid LOG_LEVEL: {level}. Must be one of DEBUG, INFO, WARNING, ERROR, CRITICAL. Defaulting to DEBUG.")
+    
+    logging.basicConfig(level=level)
 
     processors = [
         structlog.processors.TimeStamper(fmt="iso"),  # Add timestamp to logs
