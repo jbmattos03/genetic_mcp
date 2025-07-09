@@ -18,8 +18,6 @@ class TravelingSalesmanFitnessFunction(FitnessFunction):
     def __init__(self, fields: Dict[str, Any]):
         """
         Initialize the Traveling Salesman fitness function.
-
-        
         
         : param fields: A dictionary containing 'cities' and 'distance_matrix'.
         """
@@ -100,17 +98,21 @@ class TravelingSalesmanFitnessFunction(FitnessFunction):
         """
         logger.debug(f"Generating population with size: {size} with chromosome size: {chromosome_size}")
         aux = []
+        valid_flag = False
 
         for _ in range(size):
-            chromosome = self.generate_chromosome(chromosome_size)
+            while not valid_flag:
+                chromosome = self.generate_chromosome(chromosome_size)
+                if chromosome in aux:
+                    logger.debug(f"Chromosome already exists in population, generating a new one.")
+                    continue
+                # Ensure the chromosome has unique cities
+                if len(set(gene.value for gene in chromosome.genes)) != len(chromosome.genes):
+                    logger.debug(f"Chromosome has duplicate cities, generating a new one.")
+                    continue
 
-            if chromosome in aux:
-                logger.debug(f"Chromosome already exists in population, generating a new one.")
-                continue
-            # Ensure the chromosome has unique cities
-            if len(set(gene.value for gene in chromosome.genes)) != len(chromosome.genes):
-                logger.debug(f"Chromosome has duplicate cities, generating a new one.")
-                continue
+                # Add the chromosome to the population if it is valid
+                valid_flag = True
 
             aux.append(chromosome)
             logger.debug(f"Generated chromosome: {[gene.value for gene in chromosome.genes]}")
@@ -120,6 +122,7 @@ class TravelingSalesmanFitnessFunction(FitnessFunction):
             chromosomes=aux
         )
         logger.debug(f"Generated population with {len(population.chromosomes)} chromosomes.")
+        logger.debug(f"Population chromosomes: {[ [gene.value for gene in chromosome.genes] for chromosome in population.chromosomes]}")
 
         return population
 
