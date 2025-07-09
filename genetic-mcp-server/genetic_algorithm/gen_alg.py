@@ -3,6 +3,7 @@ import random
 
 from fitness_functions.fitness_function import FitnessFunction
 from chromosome import Chromosome
+from gene import Gene
 from logger import logger_config
 
 logger = logger_config(process_name="genetic_algorithm", pretty=True)
@@ -12,7 +13,15 @@ class GeneticAlgorithm:
     A class to represent a genetic algorithm.
     """
 
-    def __init__(self, population_size: int, chromosome_size: int, fitness_function: FitnessFunction = None, mutation_rate: Optional[float] = 0.05, crossover_rate: Optional[float] = 0.8):
+    def __init__(
+            self, 
+            population_size: int, 
+            chromosome_size: int, 
+            fitness_function: FitnessFunction = None, 
+            mutation_rate: Optional[float] = 0.05, 
+            crossover_rate: Optional[float] = 0.8,
+            problem: Optional[str] = "knapsack"
+    ):
         """
         Initialize the genetic algorithm with a population of chromosomes.
 
@@ -36,6 +45,7 @@ class GeneticAlgorithm:
         self.crossover_rate = crossover_rate
 
         # Initialize generation count and best chromosome
+        self.problem = problem
         self.generation = 0
         self.best_chromosome = None
         self.best_fitness = float("-inf") # Initialize best fitness to negative infinity
@@ -116,7 +126,7 @@ class GeneticAlgorithm:
 
         selected = []
         current_pop = [chromosome for chromosome in self.population.chromosomes]
-        logger.debug(f"Current population: {[g.value for chromosome in current_pop for g in chromosome.genes]}")
+        logger.debug(f"Current population: {[ [g.value for g in chromosome.genes] for chromosome in current_pop ]}")
         
         total_fitness = sum([chromosome.fitness for chromosome in self.population.chromosomes])
         logger.debug(f"Total fitness of population: {total_fitness}")
@@ -124,7 +134,7 @@ class GeneticAlgorithm:
 
         while len(selected) < parents:
             logger.debug(f"Selecting {parents} parents, currently selected: {len(selected)}")
-            random_number = random.randint(0, total_fitness)
+            random_number = random.uniform(0, total_fitness)
             
             for chromosome in current_pop:
                 current_sum += chromosome.fitness
@@ -210,15 +220,27 @@ class GeneticAlgorithm:
 
             # Check if the offspring are valid (i.e., their weight does not exceed the max sum)
             # and if they are not already in the population
-            if offspring1 not in self.population.chromosomes and offspring2 not in self.population.chromosomes and \
-            sum([offspring1.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight and \
-            sum([offspring2.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight:
-                valid_flag = True
+            if self.problem == "knapsack":
+                if offspring1 not in self.population.chromosomes and offspring2 not in self.population.chromosomes and \
+                sum([offspring1.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight and \
+                sum([offspring2.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight:
+                    valid_flag = True
+            # For TSP, check if the offspring are valid (i.e., they do not contain duplicate genes)
+            elif self.problem == "tsp":
+                if (
+                    offspring1 not in self.population.chromosomes and
+                    offspring2 not in self.population.chromosomes and
+                    len([g.value for g in offspring1.genes]) == len(set(g.value for g in offspring1.genes)) and
+                    len([g.value for g in offspring2.genes]) == len(set(g.value for g in offspring2.genes))
+                ):
+                    valid_flag = True
         
         if valid_flag is True:
             # Replace the parents with the offspring
             parent1.genes = offspring1.genes
             parent2.genes = offspring2.genes
+        else:
+            logger.warning(f"Failed to create valid offspring after {attempts} attempts. Retaining original parents: {[g.value for g in parent1.genes]} and {[g.value for g in parent2.genes]}")
 
     def mutate(self, chromosome: Chromosome):
         """
@@ -239,10 +261,16 @@ class GeneticAlgorithm:
                 if new_gene != gene:
                     gene.value = new_gene.value
 
-                    if any(chromosome.genes == pop_chromosome.genes for pop_chromosome in self.population.chromosomes) or \
-                       sum([chromosome.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome.length)]) > self.fitness_function.max_weight:
-                        logger.warning(f"Mutation resulted in an invalid chromosome: {[g.value for g in chromosome.genes]}. Reverting to original value.")
-                        gene.value = original_value
+                    if self.problem == "knapsack":
+                        if any(chromosome.genes == pop_chromosome.genes for pop_chromosome in self.population.chromosomes) or \
+                        sum([chromosome.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome.length)]) > self.fitness_function.max_weight:
+                            logger.warning(f"Mutation resulted in an invalid chromosome: {[g.value for g in chromosome.genes]}. Reverting to original value.")
+                            gene.value = original_value
+                    elif self.problem == "tsp":
+                        if any(chromosome.genes == pop_chromosome.genes for pop_chromosome in self.population.chromosomes) or \
+                            len([g.value for g in chromosome.genes]) != len(set(g.value for g in chromosome.genes)): 
+                            logger.warning(f"Mutation resulted in an invalid chromosome: {[g.value for g in chromosome.genes]}. Reverting to original value.")
+                            gene.value = original_value
 
     def run(self, generations: int, method: str = "roulette"):
         """
@@ -290,6 +318,5 @@ class GeneticAlgorithm:
             return {
                 "best_chromosome": [g.value for g in best.genes],
                 "best_fitness": best.fitness,
-                "weight": sum([g.value * self.fitness_function.weight[i] for i, g in enumerate(best.genes)]),
                 "generation": self.generation
             }
