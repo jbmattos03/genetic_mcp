@@ -59,9 +59,9 @@ def main(
     logger.info(f"Genetic algorithm completed. Best solution: {result['best_chromosome']}, Fitness: {result['best_fitness']}, Generation: {result['generation']}")
 
     if problem == "knapsack":
-        result.append({
+        result.update({
             "max_weight": fitness_function.max_weight,
-            "weight": sum([gene.value * fitness_function.weight[i] for i, gene in enumerate(result[0].genes)]),
+            "weight": sum([gene * fitness_function.weight[i] for i, gene in enumerate(result["best_chromosome"])]),
         })
 
     return result
