@@ -1,4 +1,5 @@
 from typing import Dict, Any, Optional
+import json
 
 from gen_alg import GeneticAlgorithm
 from logger import logger_config
@@ -24,7 +25,8 @@ def main(
 
     population_size = int(options.get("population_size", 1000))
     chromosome_size = int(options.get("chromosome_size", 10))
-    generations = generations
+    generations = int(generations)
+
     ff_arg = options.get("fitness_function")  # Mandatory field for fitness function parameters
     if ff_arg is None:
         logger.error("Fitness function parameters must be provided.")
@@ -49,26 +51,27 @@ def main(
         population_size=population_size,
         chromosome_size=chromosome_size,
         fitness_function=fitness_function,
+        problem=problem,
     )
 
-    generations = int(generations)
     result = ga.run(generations=generations)
     logger.info("Genetic algorithm completed. Best solution: %s", result)
+
+    if problem == "knapsack":
+        result.append({
+            "max_weight": fitness_function.max_weight,
+            "weight": sum([gene.value * fitness_function.weight[i] for i, gene in enumerate(result[0].genes)]),
+        })
 
     return result
         
 if __name__ == "__main__":
-    main(
-        options={
-            "population_size": 500,
-            "chromosome_size": 10,
-            "fitness_function": {
-                    "capacity": [5, 4, 3, 2, 1, 6, 2, 3, 4, 5],
-                    "weight": [2, 3, 4, 5, 7, 1, 6, 4.5, 3.5, 2.5],
-                    "value": [40, 50, 65, 80, 110, 15, 90, 70, 60, 55],
-                    "max_weight": 50
-            }
-        },
-        generations=50,
-        problem="knapsack"
-    )
+    with open("tsp.json", "r") as file:
+        tsp_data = json.load(file)
+    
+    options = tsp_data.get("options", {})
+    problem = tsp_data.get("problem", "traveling_salesman")
+    generations = tsp_data.get("generations", 100)
+    #print(options, problem, generations)
+    
+    main(options=options, problem=problem, generations=generations)
