@@ -11,3 +11,6 @@ dist/
 
 # Ignore IDE configuration files
 .vscode/
+
+# Ignore .env
+.env
