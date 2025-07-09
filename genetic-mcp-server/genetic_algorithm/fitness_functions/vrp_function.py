@@ -1,7 +1,9 @@
 from typing import Dict, Optional, Any
 import random
 
-from fitness_function import FitnessFunction
+import sys
+sys.path.append("fitness_functions")
+from fitness_functions.fitness_function import FitnessFunction
 from chromosome import Chromosome
 from gene import Gene
 from population import Population
