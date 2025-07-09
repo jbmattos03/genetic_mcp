@@ -1,7 +1,9 @@
 from typing import Dict, Optional, Any
 import random
 
-from fitness_function import FitnessFunction
+import sys
+sys.path.append("fitness_functions")  # Adjust the path to import from the parent directory
+from fitness_functions.fitness_function import FitnessFunction
 from chromosome import Chromosome
 from gene import Gene
 from population import Population
@@ -19,14 +21,13 @@ class KnapsackFitnessFunction(FitnessFunction):
 
         :param fields: A dictionary containing 'capacity', 'weight', and 'value' lists.
         """
-        if not fields:
-            raise ValueError("Knapsack fitness function must have at least one field.")
-        
+        super().__init__(fields)
+        logger.debug(f"Initializing KnapsackFitnessFunction with fields: {fields}")
+
         # Validate required keys
-        required_keys = ["capacity", "weight", "value", "max_weight"]
-        for key in required_keys:
-            if key not in fields:
-                raise ValueError(f"Missing required key '{key}' in fields.")
+        if not all(key in fields for key in ["capacity", "weight", "value", "max_weight"]) or \
+            not all(isinstance(fields[key], list) for key in ["capacity", "weight", "value"]):
+            raise ValueError("Fields must contain 'capacity', 'weight', and 'value' as lists.")
 
         # Ensure all lists are of the same length
         if not (len(fields["capacity"]) == len(fields["weight"]) == len(fields["value"])):
@@ -36,8 +37,6 @@ class KnapsackFitnessFunction(FitnessFunction):
         self.weight = fields["weight"]
         self.value = fields["value"]
         self.max_weight = fields.get("max_weight", sum(self.capacity))  # Default max weight if not provided
-
-        super().__init__(fields)
 
     def generate_gene(self, index: Optional[int] = None, value: Optional[float] = None) -> Gene:
         """
@@ -54,7 +53,7 @@ class KnapsackFitnessFunction(FitnessFunction):
         elif self.capacity is not None and isinstance(self.capacity, (int, float)):
             logger.debug(f"Using capacity value: {self.fields['capacity']}")
             return Gene(random.randint(0, self.capacity))
-        elif self.fields["capacity"] is not None and isinstance(self.capacity, list):
+        elif self.capacity is not None and isinstance(self.capacity, list):
             if index is None or index >= len(self.fields["capacity"]):
                 logger.error(f"Index {index} is out of range for capacity list: {self.fields['capacity']}")
                 raise IndexError("Index out of range for capacity list.")
