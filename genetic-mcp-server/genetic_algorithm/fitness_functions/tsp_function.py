@@ -98,9 +98,9 @@ class TravelingSalesmanFitnessFunction(FitnessFunction):
         """
         logger.debug(f"Generating population with size: {size} with chromosome size: {chromosome_size}")
         aux = []
-        valid_flag = False
 
         for _ in range(size):
+            valid_flag = False
             while not valid_flag:
                 chromosome = self.generate_chromosome(chromosome_size)
                 if chromosome in aux:
