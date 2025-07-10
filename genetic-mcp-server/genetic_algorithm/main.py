@@ -1,6 +1,7 @@
 from typing import Dict, Any, Optional
 import json
 import sys
+from math import factorial
 
 from gen_alg import GeneticAlgorithm
 from logger import logger_config
@@ -43,6 +44,11 @@ def main(
     elif problem == "traveling_salesman":
         fitness_function = TravelingSalesmanFitnessFunction(ff_arg)
         logger.info("Using TravelingSalesmanFitnessFunction with parameters: %s", ff_arg)
+
+        # Check if population size is leq (chromosome_size!), which is the max size of permutations of chromosome_size
+        max_pop = factorial(chromosome_size)
+        if population_size > (max_pop):
+            raise ValueError(f"Population size must not exceed {chromosome_size}! ({max_pop}) for this problem.")
     else:
         logger.error(f"Unknown problem type: {problem}")
         raise ValueError(f"Unknown problem type: {problem}")
