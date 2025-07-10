@@ -321,7 +321,7 @@ class GeneticAlgorithm:
         else:
             logger.info(f"Best solution found: {[g.value for g in best.genes]} with fitness: {best.fitness} after {self.generation} generations.")
             return {
-                "best_chromosome": [g.value for g in best.genes],
+                "best_chromosome": best,
                 "best_fitness": best.fitness,
                 "generation": self.generation
             }
