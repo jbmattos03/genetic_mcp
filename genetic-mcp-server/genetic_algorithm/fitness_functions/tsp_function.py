@@ -155,7 +155,10 @@ class TravelingSalesmanFitnessFunction(FitnessFunction):
         # The fitness is the inverse of the total distance (lower distance = higher fitness)
         fitness = 1 / total_distance if total_distance > 0 else float('inf')
 
+        # Add a distance attribute to the chromosome
+        chromosome.distance = total_distance 
+ 
         chromosome.fitness = fitness
-        logger.debug(f"Calculated fitness: {fitness} for chromosome: {[gene.value for gene in chromosome.genes]}")
+        logger.debug(f"Calculated fitness: {fitness} and total distance: {total_distance} for chromosome: {[gene.value for gene in chromosome.genes]}")
 
         return fitness

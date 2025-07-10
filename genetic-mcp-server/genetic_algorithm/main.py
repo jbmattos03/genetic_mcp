@@ -56,12 +56,16 @@ def main(
     )
 
     result = ga.run(generations=generations)
-    logger.info(f"Genetic algorithm completed. Best solution: {result['best_chromosome']}, Fitness: {result['best_fitness']}, Generation: {result['generation']}")
+    logger.info(f"Genetic algorithm completed. Best solution: {[g.value for g in result['best_chromosome'].genes]}, Fitness: {result['best_fitness']}, Generation: {result['generation']}")
 
     if problem == "knapsack":
         result.update({
             "max_weight": fitness_function.max_weight,
             "weight": sum([gene * fitness_function.weight[i] for i, gene in enumerate(result["best_chromosome"])]),
+        })
+    elif problem == "traveling_salesman":
+        result.update({
+            "distance": result["best_chromosome"].distance,
         })
 
     return result
