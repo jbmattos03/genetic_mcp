@@ -82,8 +82,8 @@ class KnapsackFitnessFunction(FitnessFunction):
             total_weight = sum(genes[i].value * self.weight[i] for i in range(len(genes)))
             if total_weight <= self.max_weight:
                 logger.debug(f"Generated genes: {[gene.value for gene in genes]}, Total weight: {total_weight}")
-                success_flag = True
                 chromosome.genes = genes
+                success_flag = True
             
         return chromosome
     
@@ -122,7 +122,15 @@ class KnapsackFitnessFunction(FitnessFunction):
         :return: The fitness value of the chromosome.
         """
         logger.debug(f"Calculating fitness for chromosome: {[g.value for g in chromosome.genes]}")
+
+        # Calculate fitness
         fitness = sum(gene.value * self.value[i] for i, gene in enumerate(chromosome.genes))  # Access gene.value
+        chromosome.fitness = fitness
         logger.debug(f"Calculated fitness: {fitness} for chromosome: {[g.value for g in chromosome.genes]}")
+
+        # Calculate total weight
+        total_weight = sum(gene.value * self.weight[i] for i, gene in enumerate(chromosome.genes))
+        chromosome.weight = total_weight
+        logger.debug(f"Calculated weight: {total_weight} for chromosome: {[g.value for g in chromosome.genes]}")
 
         return fitness
