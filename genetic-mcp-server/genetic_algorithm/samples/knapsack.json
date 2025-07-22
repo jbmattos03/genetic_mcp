@@ -2,7 +2,7 @@
     "problem": "knapsack",
     "generations": 50,
     "options": {
-            "population_size": 1000,
+            "population_size": 100,
             "chromosome_size": 10,
             "fitness_function": {
                     "capacity": [5, 4, 3, 2, 1, 6, 2, 3, 4, 5],
