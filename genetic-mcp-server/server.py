@@ -1,5 +1,5 @@
 from mcp.server.fastmcp import FastMCP
-from typing import Any, List, Optional, Dict, Callable
+from typing import Any, Dict
 
 import sys
 sys.path.append("genetic_algorithm")
@@ -9,14 +9,6 @@ from genetic_algorithm.main import main as genetic_algorithm_main
 mcp = FastMCP("genetic-mcp-server")
 
 # ------- Adding tools -------
-# Tool: vehicle routing problem
-@mcp.tool("vehicle_routing_problem")
-def vehicle_routing_problem():
-    """
-    A tool to solve the vehicle routing problem using a genetic algorithm.
-    """
-    return
-
 # Tool: knapsack problem
 @mcp.tool(description="Solve a knapsack problem using a genetic algorithm.")
 async def knapsack_problem(
@@ -27,6 +19,28 @@ async def knapsack_problem(
 ) -> Dict[str, Any]:
     """
     A tool to solve the knapsack problem using a genetic algorithm.
+
+    Parameters:
+        population_size (int): Number of individuals in the population.
+      chromosome_size (int): Number of genes in each chromosome.
+        generations (int): Number of generations to run.
+        fitness_function (dict): Knapsack problem parameters:
+            - cities (list of strings): Name of each city.
+            - distance_matrix (list of lists (matrix) of numbers): Distance between all the cities.
+
+    Example:
+        knapsack_problem(
+            population_size=100,
+            chromosome_size=5,
+            generations=75,
+            fitness_function={
+                "capacity": [5, 4, 3, 2, 1],
+                "weight": [2, 3, 4, 5, 7],
+                "value": [40, 50, 60, 80, 100],
+                "max_weight": 50
+            }
+        )
+
     """
     if not isinstance(population_size, int) or population_size <= 0:
         raise ValueError("Population size must be a positive integer.")
@@ -54,7 +68,34 @@ async def traveling_salesman_problem(
     fitness_function: Dict[str, Any] = None,
 ) -> Dict[str, Any]:
     """
-    A tool to solve the traveling salesman problem using a genetic algorithm.
+    Solves the traveling salesman problem using a genetic algorithm.
+
+    Parameters:
+        population_size (int): Number of individuals in the population.
+        chromosome_size (int): Number of genes in each chromosome.
+        generations (int): Number of generations to run.
+        fitness_function (dict): Knapsack problem parameters:
+            - capacity (list of numbers): Capacity of each item.
+            - weight (list of numbers): Weight of each item.
+            - value (list of numbers): Value of each item.
+            - max_weight (number): Maximum total weight allowed.
+
+    Example:
+        knapsack_problem(
+            population_size=100,
+            chromosome_size=5,
+            generations=75,
+            fitness_function={
+                "cities": ["A", "B", "C", "D", "E"],
+                "distance_matrix": [
+                    [0, 10, 20, 30, 40],
+                    [10, 0, 20, 30, 40],
+                    [10, 20, 0, 30, 40],
+                    [10, 20, 30, 0, 40]
+                    [10, 20, 30, 40, 0]
+                ]
+            }
+        )
     """
     if not isinstance(population_size, int) or population_size <= 0:
         raise ValueError("Population size must be a positive integer.")
