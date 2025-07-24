@@ -1,5 +1,4 @@
-from typing import List, Optional
-import random
+from typing import Optional
 
 class Gene:
     """

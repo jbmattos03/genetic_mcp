@@ -3,7 +3,6 @@ import random
 
 from fitness_functions.fitness_function import FitnessFunction
 from chromosome import Chromosome
-from gene import Gene
 from logger import logger_config
 
 logger = logger_config(process_name="genetic_algorithm", pretty=True)
@@ -224,9 +223,12 @@ class GeneticAlgorithm:
             # Check if the offspring are valid (i.e., their weight does not exceed the max sum)
             # and if they are not already in the population
             if self.problem == "knapsack":
-                if offspring1 not in self.population.chromosomes and offspring2 not in self.population.chromosomes and \
-                sum([offspring1.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight and \
-                sum([offspring2.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight:
+                if (
+                    offspring1 not in self.population.chromosomes and 
+                    offspring2 not in self.population.chromosomes and
+                    sum([offspring1.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight and
+                    sum([offspring2.genes[k].value * self.fitness_function.weight[k] for k in range(chromosome_length)]) <= self.fitness_function.max_weight
+                ):
                     valid_flag = True
             # For TSP, check if the offspring are valid (i.e., they do not contain duplicate genes)
             elif self.problem == "traveling_salesman":

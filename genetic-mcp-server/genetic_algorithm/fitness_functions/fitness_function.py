@@ -30,7 +30,6 @@ class FitnessFunction(ABC):
         """
         pass
 
-        
     @abstractmethod
     def generate_chromosome(self) -> Chromosome:
         """
