@@ -1,5 +1,4 @@
 from typing import Dict, Optional, Any
-import random
 
 import sys
 sys.path.append("fitness_functions")
@@ -19,9 +18,31 @@ class VehicleRoutingFitnessFunction(FitnessFunction):
         """
         Initialize the vehicle routing fitness function.
 
-        :param fields: A dictionary containing 'depot', 'customer_demand', 'vehicle_capacity', 'distance_matrix' lists
+        :param fields: A dictionary containing 'depot', 'client_demands', 'vehicle_capacity', 'distance_matrix' lists
         """
-        pass
+        super().__init__(fields)
+        logger.debug(f"Initializing TravelingSalesmanFitnessFunction with fields: {fields}")
+
+        # Validate required keys
+        required_keys = ["vehicle_capacity", "client_demands", "distance_matrix"]
+        if not all(key in fields for key in required_keys + ["depot"]) or not all(isinstance(fields[key], list) for key in required_keys):
+            raise ValueError("Fields must contain 'cities' and 'distance_matrix' as lists.")
+        
+        if not isinstance(fields["depot"], (int, list)):
+            raise ValueError("Depot must be an integer or a list representing the depot location(s).")
+        
+        # Ensure distance_matrix is a square matrix
+        if not all(len(row) == len(fields["client_demands"]) for row in fields["distance_matrix"]):
+            raise ValueError("Distance matrix must be a square matrix with the same number of rows and columns as the number of clients.")
+        
+        # Ensure distance_matrix has the same number of rows and columns as the number of cities
+        if len(fields["distance_matrix"]) != len(fields["cities"]):
+            raise ValueError("Distance matrix must have the same number of rows and columns as the number of cities.")
+        
+        self.client_demands = fields["client_demands"]
+        self.vehicle_capacity = fields["vehicle_capacity"]
+        self.depot = fields["depot"]
+        self.distance_matrix = fields["distance_matrix"]
     
     def generate_gene(self, index: Optional[int] = None, value: Optional[float] = None) -> Gene:
         """
